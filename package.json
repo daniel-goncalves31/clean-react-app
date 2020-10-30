@@ -4,7 +4,10 @@
   "description": "An simple app to apply the Clean Architecture in an React App",
   "main": "index.ts",
   "scripts": {
-    "test": "jest"
+    "test": "jest --passWithNoTests",
+    "test:watch": "yarn test -- --watch",
+    "test:staged": "yarn test ----findRealtedTests",
+    "test:ci": "yarn test -- --coverage"
   },
   "keywords": [],
   "author": "Daniel Gonçalves",
