@@ -1,13 +1,14 @@
 import { RemoteAuthenticationUseCase } from './RemoteAuthenticationUseCase'
 import { mock, MockProxy } from 'jest-mock-extended'
 import { HttpPostClient } from 'data/protocols/HttpPostClient'
+import faker from 'faker'
 
 interface SutType {
   sut: RemoteAuthenticationUseCase
   httpPostClientStub: MockProxy<HttpPostClient>
 }
 
-const fakeUrl = 'any_url'
+const fakeUrl = faker.internet.url()
 
 const makeSut = (): SutType => {
   const httpPostClientStub = mock<HttpPostClient>()
