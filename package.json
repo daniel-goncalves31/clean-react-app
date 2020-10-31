@@ -4,7 +4,7 @@
   "description": "An simple app to apply the Clean Architecture in an React App",
   "main": "index.ts",
   "scripts": {
-    "test": "jest --passWithNoTests",
+    "test": "jest --passWithNoTests --silent",
     "test:watch": "yarn test -- --watch",
     "test:staged": "yarn test ----findRelatedTests",
     "test:ci": "yarn test -- --coverage"
