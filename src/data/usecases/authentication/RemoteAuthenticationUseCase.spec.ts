@@ -1,7 +1,7 @@
-import { RemoteAuthenticationUseCase } from './RemoteAuthenticationUseCase'
+import { HttpPostClient, HttpPostParams } from 'data/protocols/HttpPostClient'
 import { mock, MockProxy } from 'jest-mock-extended'
-import { HttpPostClient } from 'data/protocols/HttpPostClient'
 import faker from 'faker'
+import { RemoteAuthenticationUseCase } from './RemoteAuthenticationUseCase'
 
 interface SutType {
   sut: RemoteAuthenticationUseCase
@@ -27,7 +27,7 @@ describe('RemoteAuthenticationUseCase', () => {
 
     await sut.auth()
 
-    expect(httpPostClientStub.post).toHaveBeenCalledWith(fakeUrl)
+    expect(httpPostClientStub.post).toHaveBeenCalledWith<[HttpPostParams]>({ url: fakeUrl })
     expect(httpPostClientStub.post).toHaveBeenCalledTimes(1)
   })
 })
