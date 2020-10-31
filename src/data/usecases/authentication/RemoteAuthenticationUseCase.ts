@@ -1,6 +1,7 @@
 import { HttpPostClient } from '@/data/protocols/http/HttpPostClient'
 import { HttpStatusCode } from '@/data/protocols/http/HttpResponse'
 import { InvalidCredentialsError } from '@/domain/errors/InvalidCredentialsError'
+import { UnexpectedError } from '@/domain/errors/UnexpectedError'
 import { AuthenticationParams } from '@/domain/usecases/AuthenticationUseCase'
 
 export class RemoteAuthenticationUseCase {
@@ -16,10 +17,13 @@ export class RemoteAuthenticationUseCase {
     })
 
     switch (httpResponse.statusCode) {
-      case HttpStatusCode.UNAUTHORIZED:
+      case HttpStatusCode.UNATHORIZED:
         throw new InvalidCredentialsError()
+      case HttpStatusCode.BAD_REQUEST:
+      case HttpStatusCode.NOT_FOUND:
+      case HttpStatusCode.SERVER_ERROR:
+        throw new UnexpectedError()
       default:
-        return await Promise.resolve()
     }
   }
 }
