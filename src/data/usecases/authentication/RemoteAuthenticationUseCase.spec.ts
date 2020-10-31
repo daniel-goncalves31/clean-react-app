@@ -1,14 +1,15 @@
-import { HttpPostClient, HttpPostParams } from 'data/protocols/HttpPostClient'
+import { internet } from 'faker'
 import { mock, MockProxy } from 'jest-mock-extended'
-import faker from 'faker'
 import { RemoteAuthenticationUseCase } from './RemoteAuthenticationUseCase'
+import { HttpPostClient, HttpPostParams } from '../../../data/protocols/HttpPostClient'
+import { mockAuthenticationParams } from '../../../domain/test/mock-authentication'
 
 interface SutType {
   sut: RemoteAuthenticationUseCase
   httpPostClientStub: MockProxy<HttpPostClient>
 }
 
-const fakeUrl = faker.internet.url()
+const fakeUrl = internet.url()
 
 const makeSut = (): SutType => {
   const httpPostClientStub = mock<HttpPostClient>()
@@ -22,12 +23,13 @@ const makeSut = (): SutType => {
 }
 
 describe('RemoteAuthenticationUseCase', () => {
-  it('should call HttpPostClient with correct URL', async () => {
+  it('should call HttpPostClient with correct URL and body', async () => {
     const { sut, httpPostClientStub } = makeSut()
 
-    await sut.auth()
+    const authenticationParams = mockAuthenticationParams()
+    await sut.auth(authenticationParams)
 
-    expect(httpPostClientStub.post).toHaveBeenCalledWith<[HttpPostParams]>({ url: fakeUrl })
+    expect(httpPostClientStub.post).toHaveBeenCalledWith<[HttpPostParams]>({ url: fakeUrl, body: authenticationParams })
     expect(httpPostClientStub.post).toHaveBeenCalledTimes(1)
   })
 })
