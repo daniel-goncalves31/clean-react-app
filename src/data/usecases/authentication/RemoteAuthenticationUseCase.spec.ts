@@ -2,7 +2,7 @@ import { internet } from 'faker'
 import { mock, MockProxy } from 'jest-mock-extended'
 import { RemoteAuthenticationUseCase } from './RemoteAuthenticationUseCase'
 import { HttpPostClient, HttpPostParams } from '@/data/protocols/http/HttpPostClient'
-import { mockAuthenticationParams } from '@/domain/test/mock-authentication'
+import { mockAccountModel, mockAuthenticationParams } from '@/domain/test/mock-account'
 import { HttpStatusCode } from '@/data/protocols/http/HttpResponse'
 import { InvalidCredentialsError } from '@/domain/errors/InvalidCredentialsError'
 import { UnexpectedError } from '@/domain/errors/UnexpectedError'
@@ -15,6 +15,7 @@ interface SutType {
 }
 
 const authenticationParams = mockAuthenticationParams()
+const accountModel = mockAccountModel()
 const fakeUrl = internet.url()
 
 const makeSut = (): SutType => {
@@ -69,5 +70,13 @@ describe('RemoteAuthenticationUseCase', () => {
 
     const promise = sut.auth(authenticationParams)
     await expect(promise).rejects.toThrow(new UnexpectedError())
+  })
+
+  it('should return an AccountModel on success', async () => {
+    const { sut, httpPostClientStub } = makeSut()
+    httpPostClientStub.post.mockReturnValueOnce(Promise.resolve({ statusCode: HttpStatusCode.OK, body: accountModel }))
+
+    const res = await sut.auth(authenticationParams)
+    expect(res).toEqual(accountModel)
   })
 })
