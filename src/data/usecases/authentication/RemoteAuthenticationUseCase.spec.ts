@@ -1,13 +1,11 @@
 import { internet } from 'faker'
 import { mock, MockProxy } from 'jest-mock-extended'
 import { RemoteAuthenticationUseCase } from './RemoteAuthenticationUseCase'
-import { HttpPostClient, HttpPostParams } from '@/data/protocols/http/HttpPostClient'
 import { mockAccountModel, mockAuthenticationParams } from '@/domain/test/mock-account'
-import { HttpStatusCode } from '@/data/protocols/http/HttpResponse'
-import { InvalidCredentialsError } from '@/domain/errors/InvalidCredentialsError'
-import { UnexpectedError } from '@/domain/errors/UnexpectedError'
+import { InvalidCredentialsError, UnexpectedError } from '@/domain/errors'
 import { AuthenticationParams } from '@/domain/usecases/AuthenticationUseCase'
 import { AccountModel } from '@/domain/models/AccountModel'
+import { HttpPostClient, HttpPostParams, HttpStatusCode } from '@/data/protocols/http'
 
 interface SutType {
   sut: RemoteAuthenticationUseCase
