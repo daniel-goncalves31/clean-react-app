@@ -6,17 +6,19 @@ import { mockAuthenticationParams } from '@/domain/test/mock-authentication'
 import { HttpStatusCode } from '@/data/protocols/http/HttpResponse'
 import { InvalidCredentialsError } from '@/domain/errors/InvalidCredentialsError'
 import { UnexpectedError } from '@/domain/errors/UnexpectedError'
+import { AuthenticationParams } from '@/domain/usecases/AuthenticationUseCase'
+import { AccountModel } from '@/domain/models/AccountModel'
 
 interface SutType {
   sut: RemoteAuthenticationUseCase
-  httpPostClientStub: MockProxy<HttpPostClient>
+  httpPostClientStub: MockProxy<HttpPostClient<AuthenticationParams, AccountModel>>
 }
 
 const authenticationParams = mockAuthenticationParams()
 const fakeUrl = internet.url()
 
 const makeSut = (): SutType => {
-  const httpPostClientStub = mock<HttpPostClient>()
+  const httpPostClientStub = mock<HttpPostClient<AuthenticationParams, AccountModel>>()
 
   const sut = new RemoteAuthenticationUseCase(fakeUrl, httpPostClientStub)
 
@@ -33,7 +35,7 @@ describe('RemoteAuthenticationUseCase', () => {
 
     await sut.auth(authenticationParams)
 
-    expect(httpPostClientStub.post).toHaveBeenCalledWith<[HttpPostParams]>({ url: fakeUrl, body: authenticationParams })
+    expect(httpPostClientStub.post).toHaveBeenCalledWith<[HttpPostParams<AuthenticationParams>]>({ url: fakeUrl, body: authenticationParams })
     expect(httpPostClientStub.post).toHaveBeenCalledTimes(1)
   })
 
