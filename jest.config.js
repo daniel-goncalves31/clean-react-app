@@ -7,8 +7,8 @@ module.exports = {
   moduleNameMapper: {
     '@/(.*)': '<rootDir>/src/$1'
   },
-  testEnvironment: 'node',
+  testEnvironment: 'jsdom',
   transform: {
-    '.+\\.ts$': 'ts-jest'
+    '.+\\.(ts, tsx)$': 'ts-jest'
   }
 }
