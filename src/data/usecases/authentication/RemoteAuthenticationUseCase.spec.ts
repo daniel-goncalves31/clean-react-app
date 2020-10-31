@@ -1,8 +1,8 @@
 import { internet } from 'faker'
 import { mock, MockProxy } from 'jest-mock-extended'
 import { RemoteAuthenticationUseCase } from './RemoteAuthenticationUseCase'
-import { HttpPostClient, HttpPostParams } from '../../../data/protocols/HttpPostClient'
-import { mockAuthenticationParams } from '../../../domain/test/mock-authentication'
+import { HttpPostClient, HttpPostParams } from '@/data/protocols/HttpPostClient'
+import { mockAuthenticationParams } from '@/domain/test/mock-authentication'
 
 interface SutType {
   sut: RemoteAuthenticationUseCase
