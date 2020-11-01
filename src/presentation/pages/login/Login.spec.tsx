@@ -9,6 +9,8 @@ import { InvalidCredentialsError } from '@/domain/errors'
 import '@testing-library/jest-dom/extend-expect'
 import 'jest-localstorage-mock'
 import { mockAccountModel } from '@/domain/test/mock-account'
+import { Router } from 'react-router-dom'
+import { createMemoryHistory } from 'history'
 
 type SutTypes = {
   sut: RenderResult
@@ -22,6 +24,7 @@ const errorMessage = random.words(3)
 const successMessage = 'OK'
 const invalidCredentialsError = new InvalidCredentialsError()
 const accountModel = mockAccountModel()
+const history = createMemoryHistory()
 
 const makeSut = (message: string = ''): SutTypes => {
   const validationStub = mock<Validation>()
@@ -30,7 +33,11 @@ const makeSut = (message: string = ''): SutTypes => {
   const authenticationStub = mock<AuthenticationUseCase>()
   authenticationStub.auth.mockResolvedValue(accountModel)
 
-  const sut = render(<Login validation={validationStub} authentication={authenticationStub} />)
+  const sut = render(
+    <Router history={history}>
+      <Login validation={validationStub} authentication={authenticationStub} />
+    </Router>
+  )
 
   return {
     sut,
@@ -191,6 +198,17 @@ describe('Login Page', () => {
       simulateValidSubmitEvent(sut)
 
       expect(localStorage.setItem).toHaveBeenCalledWith('accessToken', accountModel.accessToken)
+    })
+  })
+
+  describe('Router', () => {
+    it('should navigates to signup correctly', async () => {
+      const { sut } = makeSut()
+
+      fireEvent.click(sut.getByTestId('signup'))
+
+      expect(history.length).toBe(2)
+      expect(history.location.pathname).toBe('/signup')
     })
   })
 })
