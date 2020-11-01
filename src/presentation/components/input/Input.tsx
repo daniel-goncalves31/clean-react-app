@@ -21,7 +21,7 @@ const Input: React.FC<Props> = ({ name, ...otherProps }) => {
   }
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    const { value } = event.target
+    const { value, name } = event.target
     setState({
       ...state,
       [name]: value
