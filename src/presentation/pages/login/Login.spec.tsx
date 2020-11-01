@@ -7,6 +7,8 @@ import { internet, random } from 'faker'
 import { AuthenticationParams, AuthenticationUseCase } from '@/domain/usecases/AuthenticationUseCase'
 import { InvalidCredentialsError } from '@/domain/errors'
 import '@testing-library/jest-dom/extend-expect'
+import 'jest-localstorage-mock'
+import { mockAccountModel } from '@/domain/test/mock-account'
 
 type SutTypes = {
   sut: RenderResult
@@ -19,12 +21,14 @@ const password = internet.password()
 const errorMessage = random.words(3)
 const successMessage = 'OK'
 const invalidCredentialsError = new InvalidCredentialsError()
+const accountModel = mockAccountModel()
 
 const makeSut = (message: string = ''): SutTypes => {
   const validationStub = mock<Validation>()
   validationStub.validate.mockReturnValue(message)
 
   const authenticationStub = mock<AuthenticationUseCase>()
+  authenticationStub.auth.mockResolvedValue(accountModel)
 
   const sut = render(<Login validation={validationStub} authentication={authenticationStub} />)
 
@@ -40,7 +44,10 @@ const populateField = (sut: RenderResult, testId: string, value: string): void =
   fireEvent.input(input, { target: { value } })
 }
 
-const simulateSubmitEvent = (sut: RenderResult): void => {
+const simulateValidSubmitEvent = (sut: RenderResult): void => {
+  populateField(sut, 'email', email)
+  populateField(sut, 'password', password)
+
   const submitButton = sut.getByTestId('submit') as HTMLButtonElement
   fireEvent.click(submitButton)
 }
@@ -142,21 +149,17 @@ describe('Login Page', () => {
     it('should call Authentication with correct values', async () => {
       const { sut, authenticationStub } = makeSut()
 
-      populateField(sut, 'email', email)
-      populateField(sut, 'password', password)
+      simulateValidSubmitEvent(sut)
 
-      simulateSubmitEvent(sut)
       expect(authenticationStub.auth).toHaveBeenCalledWith<[AuthenticationParams]>({ email, password })
     })
 
     it('should call Authentication only once', async () => {
       const { sut, authenticationStub } = makeSut()
 
-      populateField(sut, 'email', email)
-      populateField(sut, 'password', password)
+      simulateValidSubmitEvent(sut)
+      simulateValidSubmitEvent(sut)
 
-      simulateSubmitEvent(sut)
-      simulateSubmitEvent(sut)
       expect(authenticationStub.auth).toHaveBeenCalledTimes(1)
     })
 
@@ -171,18 +174,23 @@ describe('Login Page', () => {
 
     it('should present error if Auhtentication fails', async () => {
       const { sut, authenticationStub } = makeSut()
-      jest.spyOn(authenticationStub, 'auth').mockRejectedValue(invalidCredentialsError)
+      authenticationStub.auth.mockRejectedValueOnce(invalidCredentialsError)
 
-      populateField(sut, 'email', email)
-      populateField(sut, 'password', password)
-
-      fireEvent.submit(sut.getByTestId('form'))
+      simulateValidSubmitEvent(sut)
 
       const mainError = await sut.findByTestId('main-error')
       expect(mainError).toHaveTextContent(invalidCredentialsError.message)
 
       const errorWrap = sut.getByTestId('error-wrap')
       expect(errorWrap.childElementCount).toBe(1)
+    })
+
+    it('should add accessToken to localStorage on success', async () => {
+      const { sut } = makeSut()
+
+      simulateValidSubmitEvent(sut)
+
+      expect(localStorage.setItem).toHaveBeenCalledWith('accessToken', accountModel.accessToken)
     })
   })
 })
