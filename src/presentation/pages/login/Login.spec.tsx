@@ -1,10 +1,12 @@
 import React from 'react'
-import { cleanup, fireEvent, render, RenderResult } from '@testing-library/react'
+import { fireEvent, render, RenderResult } from '@testing-library/react'
 import Login from './Login'
 import { mock, MockProxy } from 'jest-mock-extended'
 import { Validation } from '@/presentation/protocols/Validation'
 import { internet, random } from 'faker'
 import { AuthenticationParams, AuthenticationUseCase } from '@/domain/usecases/AuthenticationUseCase'
+import { InvalidCredentialsError } from '@/domain/errors'
+import '@testing-library/jest-dom/extend-expect'
 
 type SutTypes = {
   sut: RenderResult
@@ -16,6 +18,7 @@ const email = internet.email()
 const password = internet.password()
 const errorMessage = random.words(3)
 const successMessage = 'OK'
+const invalidCredentialsError = new InvalidCredentialsError()
 
 const makeSut = (message: string = ''): SutTypes => {
   const validationStub = mock<Validation>()
@@ -49,8 +52,6 @@ const simulateStatusForField = (sut: RenderResult, fieldName: string, validation
 }
 
 describe('Login Page', () => {
-  afterEach(cleanup)
-
   describe('Initial State', () => {
     it('should start with initial state', () => {
       const { sut } = makeSut(errorMessage)
@@ -58,8 +59,8 @@ describe('Login Page', () => {
       const errorWrap = sut.getByTestId('error-wrap')
       expect(errorWrap.childElementCount).toBe(0)
 
-      const submitButton = sut.getByTestId('submit') as HTMLButtonElement
-      expect(submitButton.disabled).toBe(true)
+      const submitButton = sut.getByTestId('submit')
+      expect(submitButton).toBeDisabled()
 
       simulateStatusForField(sut, 'email', errorMessage)
       simulateStatusForField(sut, 'password', errorMessage)
@@ -118,7 +119,7 @@ describe('Login Page', () => {
       populateField(sut, 'password', password)
 
       const submitButton = sut.getByTestId('submit') as HTMLButtonElement
-      expect(submitButton.disabled).toBe(false)
+      expect(submitButton).not.toBeDisabled()
     })
   })
 
@@ -166,6 +167,22 @@ describe('Login Page', () => {
 
       fireEvent.submit(sut.getByTestId('form'))
       expect(authenticationStub.auth).toHaveBeenCalledTimes(0)
+    })
+
+    it('should present error if Auhtentication fails', async () => {
+      const { sut, authenticationStub } = makeSut()
+      jest.spyOn(authenticationStub, 'auth').mockRejectedValue(invalidCredentialsError)
+
+      populateField(sut, 'email', email)
+      populateField(sut, 'password', password)
+
+      fireEvent.submit(sut.getByTestId('form'))
+
+      const mainError = await sut.findByTestId('main-error')
+      expect(mainError).toHaveTextContent(invalidCredentialsError.message)
+
+      const errorWrap = sut.getByTestId('error-wrap')
+      expect(errorWrap.childElementCount).toBe(1)
     })
   })
 })
