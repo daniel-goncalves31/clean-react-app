@@ -20,7 +20,7 @@ const Login: React.FC<Props> = ({ validation, authentication }) => {
     mainError: ''
   })
 
-  const { email, password, emailError, passwordError } = state
+  const { email, password, emailError, passwordError, isLoading } = state
 
   useEffect(() => {
     setState({
@@ -36,7 +36,7 @@ const Login: React.FC<Props> = ({ validation, authentication }) => {
       ...state,
       isLoading: true
     })
-
+    if (isLoading) return
     await authentication.auth({ email, password })
   }
 
