@@ -3,14 +3,15 @@ import { cleanup, fireEvent, render, RenderResult } from '@testing-library/react
 import Login from './Login'
 import { mock, MockProxy } from 'jest-mock-extended'
 import { Validation } from '@/presentation/protocols/Validation'
+import { internet } from 'faker'
 
 type SutTypes = {
   sut: RenderResult
   validationStub: MockProxy<Validation>
 }
 
-const email = 'any_email'
-const password = 'any_password'
+const email = internet.email()
+const password = internet.password()
 
 const makeSut = (): SutTypes => {
   const validationStub = mock<Validation>()
