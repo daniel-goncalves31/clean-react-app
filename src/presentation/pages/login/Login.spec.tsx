@@ -24,7 +24,7 @@ const errorMessage = random.words(3)
 const successMessage = 'OK'
 const invalidCredentialsError = new InvalidCredentialsError()
 const accountModel = mockAccountModel()
-const history = createMemoryHistory()
+const history = createMemoryHistory({ initialEntries: ['/login'] })
 
 const makeSut = (message: string = ''): SutTypes => {
   const validationStub = mock<Validation>()
@@ -192,12 +192,14 @@ describe('Login Page', () => {
       expect(errorWrap.childElementCount).toBe(1)
     })
 
-    it('should add accessToken to localStorage on success', async () => {
+    it('should add accessToken to localStorage and navigates to the main page on success', async () => {
       const { sut } = makeSut()
 
       simulateValidSubmitEvent(sut)
 
       expect(localStorage.setItem).toHaveBeenCalledWith('accessToken', accountModel.accessToken)
+      expect(history.length).toBe(1)
+      expect(history.location.pathname).toBe('/')
     })
   })
 
