@@ -5,7 +5,11 @@
       "version": "detect"
     }
   },
-  "plugins": ["react"],
+  "plugins": [
+    "react",
+    "eslint-plugin-testing-library",
+    "eslint-plugin-jest-dom"
+  ],
   "parserOptions": {
     "project": "./tsconfig.json"
   },
