@@ -13,10 +13,11 @@ type SutTypes = {
 const email = internet.email()
 const password = internet.password()
 const errorMessage = random.words(3)
+const successMessage = 'OK'
 
-const makeSut = (): SutTypes => {
+const makeSut = (message: string = ''): SutTypes => {
   const validationStub = mock<Validation>()
-  validationStub.validate.mockReturnValue(errorMessage)
+  validationStub.validate.mockReturnValue(message)
 
   const sut = render(<Login validation={validationStub} />)
 
@@ -30,7 +31,7 @@ describe('Login Page', () => {
   afterEach(cleanup)
 
   it('should start with initial state', () => {
-    const { sut } = makeSut()
+    const { sut } = makeSut(errorMessage)
 
     const errorWrap = sut.getByTestId('error-wrap')
     expect(errorWrap.childElementCount).toBe(0)
@@ -66,7 +67,7 @@ describe('Login Page', () => {
   })
 
   it('should show email error if Validation fails', () => {
-    const { sut } = makeSut()
+    const { sut } = makeSut(errorMessage)
 
     const emailInput = sut.getByTestId('email')
     fireEvent.input(emailInput, { target: { value: email } })
@@ -77,7 +78,7 @@ describe('Login Page', () => {
   })
 
   it('should show password error if Validation fails', () => {
-    const { sut } = makeSut()
+    const { sut } = makeSut(errorMessage)
 
     const passwordInput = sut.getByTestId('password')
     fireEvent.input(passwordInput, { target: { value: password } })
@@ -85,5 +86,16 @@ describe('Login Page', () => {
     const passwordStatus = sut.getByTestId('password-status')
     expect(passwordStatus.title).toBe(errorMessage)
     expect(passwordStatus.textContent).toBe('🔴')
+  })
+
+  it('should show valid password state if Validation succeeds', () => {
+    const { sut } = makeSut()
+
+    const passwordInput = sut.getByTestId('password')
+    fireEvent.input(passwordInput, { target: { value: password } })
+
+    const passwordStatus = sut.getByTestId('password-status')
+    expect(passwordStatus.title).toBe(successMessage)
+    expect(passwordStatus.textContent).toBe('🟢')
   })
 })
