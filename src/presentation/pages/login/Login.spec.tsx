@@ -158,5 +158,14 @@ describe('Login Page', () => {
       simulateSubmitEvent(sut)
       expect(authenticationStub.auth).toHaveBeenCalledTimes(1)
     })
+
+    it('should not call Authentication if form is invalid', async () => {
+      const { sut, authenticationStub } = makeSut(errorMessage)
+
+      populateField(sut, 'email', '')
+
+      fireEvent.submit(sut.getByTestId('form'))
+      expect(authenticationStub.auth).toHaveBeenCalledTimes(0)
+    })
   })
 })
