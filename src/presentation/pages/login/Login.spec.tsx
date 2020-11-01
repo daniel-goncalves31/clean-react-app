@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render, RenderResult } from '@testing-library/react
 import Login from './Login'
 import { mock, MockProxy } from 'jest-mock-extended'
 import { Validation } from '@/presentation/protocols/Validation'
-import { internet } from 'faker'
+import { internet, random } from 'faker'
 
 type SutTypes = {
   sut: RenderResult
@@ -12,9 +12,12 @@ type SutTypes = {
 
 const email = internet.email()
 const password = internet.password()
+const errorMessage = random.words(3)
 
 const makeSut = (): SutTypes => {
   const validationStub = mock<Validation>()
+  validationStub.validate.mockReturnValue(errorMessage)
+
   const sut = render(<Login validation={validationStub} />)
 
   return {
@@ -36,7 +39,7 @@ describe('Login Page', () => {
     expect(submitButton.disabled).toBe(true)
 
     const emailStatus = sut.getByTestId('email-status')
-    expect(emailStatus.title).toBe('Required Field')
+    expect(emailStatus.title).toBe(errorMessage)
     expect(emailStatus.textContent).toBe('🔴')
 
     const passwordStatus = sut.getByTestId('password-status')
@@ -60,5 +63,16 @@ describe('Login Page', () => {
     fireEvent.input(passwordInput, { target: { value: password } })
 
     expect(validationStub.validate).toHaveBeenCalledWith('password', password)
+  })
+
+  it('should show email error if Validation fails', () => {
+    const { sut } = makeSut()
+
+    const emailInput = sut.getByTestId('email')
+    fireEvent.input(emailInput, { target: { value: email } })
+
+    const emailStatus = sut.getByTestId('email-status')
+    expect(emailStatus.title).toBe(errorMessage)
+    expect(emailStatus.textContent).toBe('🔴')
   })
 })
