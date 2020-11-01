@@ -43,7 +43,7 @@ describe('Login Page', () => {
     expect(emailStatus.textContent).toBe('🔴')
 
     const passwordStatus = sut.getByTestId('password-status')
-    expect(passwordStatus.title).toBe('Required Field')
+    expect(passwordStatus.title).toBe(errorMessage)
     expect(passwordStatus.textContent).toBe('🔴')
   })
 
@@ -74,5 +74,16 @@ describe('Login Page', () => {
     const emailStatus = sut.getByTestId('email-status')
     expect(emailStatus.title).toBe(errorMessage)
     expect(emailStatus.textContent).toBe('🔴')
+  })
+
+  it('should show password error if Validation fails', () => {
+    const { sut } = makeSut()
+
+    const passwordInput = sut.getByTestId('password')
+    fireEvent.input(passwordInput, { target: { value: password } })
+
+    const passwordStatus = sut.getByTestId('password-status')
+    expect(passwordStatus.title).toBe(errorMessage)
+    expect(passwordStatus.textContent).toBe('🔴')
   })
 })
