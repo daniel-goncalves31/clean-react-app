@@ -49,7 +49,7 @@ describe('Login Page', () => {
     const emailInput = sut.getByTestId('email')
     fireEvent.input(emailInput, { target: { value: email } })
 
-    expect(validationStub.validate).toHaveBeenCalledWith({ email })
+    expect(validationStub.validate).toHaveBeenCalledWith('email', email)
   })
 
   it('should call Validation with correct password', () => {
@@ -58,6 +58,6 @@ describe('Login Page', () => {
     const passwordInput = sut.getByTestId('password')
     fireEvent.input(passwordInput, { target: { value: password } })
 
-    expect(validationStub.validate).toHaveBeenCalledWith({ password })
+    expect(validationStub.validate).toHaveBeenCalledWith('password', password)
   })
 })
