@@ -147,5 +147,16 @@ describe('Login Page', () => {
       simulateSubmitEvent(sut)
       expect(authenticationStub.auth).toHaveBeenCalledWith<[AuthenticationParams]>({ email, password })
     })
+
+    it('should call Authentication only once', async () => {
+      const { sut, authenticationStub } = makeSut()
+
+      populateField(sut, 'email', email)
+      populateField(sut, 'password', password)
+
+      simulateSubmitEvent(sut)
+      simulateSubmitEvent(sut)
+      expect(authenticationStub.auth).toHaveBeenCalledTimes(1)
+    })
   })
 })
