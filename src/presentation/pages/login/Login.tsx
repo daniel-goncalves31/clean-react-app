@@ -1,13 +1,22 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Styles from './login-styles.scss'
 import { Footer, FormStatus, Input, LoginHeader } from '@/presentation/components'
-import { FormContextProvider } from '@/presentation/contexts/form/FormContext'
+import FormContext from '@/presentation/contexts/form/FormContext'
 
 const Login: React.FC = () => {
+  const [state] = useState({
+    isLoading: false
+  })
+  const [errorState] = useState({
+    email: 'Required Field',
+    password: 'Required Field',
+    main: ''
+  })
+
   return (
     <div className={Styles.login}>
       <LoginHeader />
-      <FormContextProvider>
+      <FormContext.Provider value={{ state, errorState }}>
         <form className={Styles.form}>
           <h2>Login</h2>
           <Input autoComplete="off" type="email" name="email" placeholder="E-mail" />
@@ -16,7 +25,7 @@ const Login: React.FC = () => {
           <span className={Styles.link}>Create an account</span>
           <FormStatus />
         </form>
-      </FormContextProvider>
+      </FormContext.Provider>
       <Footer />
     </div>
   )
