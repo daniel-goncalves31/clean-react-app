@@ -32,6 +32,22 @@ const makeSut = (message: string = ''): SutTypes => {
   }
 }
 
+const populateField = (sut: RenderResult, testId: string, value: string): void => {
+  const input = sut.getByTestId(testId)
+  fireEvent.input(input, { target: { value } })
+}
+
+const simulateSubmitEvent = (sut: RenderResult): void => {
+  const submitButton = sut.getByTestId('submit') as HTMLButtonElement
+  fireEvent.click(submitButton)
+}
+
+const simulateStatusForField = (sut: RenderResult, fieldName: string, validationError?: string): void => {
+  const inputStatus = sut.getByTestId(`${fieldName}-status`)
+  expect(inputStatus.title).toBe(validationError || successMessage)
+  expect(inputStatus.textContent).toBe(validationError ? '🔴' : '🟢')
+}
+
 describe('Login Page', () => {
   afterEach(cleanup)
 
@@ -45,13 +61,8 @@ describe('Login Page', () => {
       const submitButton = sut.getByTestId('submit') as HTMLButtonElement
       expect(submitButton.disabled).toBe(true)
 
-      const emailStatus = sut.getByTestId('email-status')
-      expect(emailStatus.title).toBe(errorMessage)
-      expect(emailStatus.textContent).toBe('🔴')
-
-      const passwordStatus = sut.getByTestId('password-status')
-      expect(passwordStatus.title).toBe(errorMessage)
-      expect(passwordStatus.textContent).toBe('🔴')
+      simulateStatusForField(sut, 'email', errorMessage)
+      simulateStatusForField(sut, 'password', errorMessage)
     })
   })
 
@@ -59,63 +70,43 @@ describe('Login Page', () => {
     it('should call Validation with correct email', () => {
       const { sut, validationStub } = makeSut()
 
-      const emailInput = sut.getByTestId('email')
-      fireEvent.input(emailInput, { target: { value: email } })
-
+      populateField(sut, 'email', email)
       expect(validationStub.validate).toHaveBeenCalledWith('email', email)
     })
 
     it('should call Validation with correct password', () => {
       const { sut, validationStub } = makeSut()
 
-      const passwordInput = sut.getByTestId('password')
-      fireEvent.input(passwordInput, { target: { value: password } })
-
+      populateField(sut, 'password', password)
       expect(validationStub.validate).toHaveBeenCalledWith('password', password)
     })
 
     it('should show email error if Validation fails', () => {
       const { sut } = makeSut(errorMessage)
 
-      const emailInput = sut.getByTestId('email')
-      fireEvent.input(emailInput, { target: { value: email } })
-
-      const emailStatus = sut.getByTestId('email-status')
-      expect(emailStatus.title).toBe(errorMessage)
-      expect(emailStatus.textContent).toBe('🔴')
+      populateField(sut, 'email', email)
+      simulateStatusForField(sut, 'email', errorMessage)
     })
 
     it('should show password error if Validation fails', () => {
       const { sut } = makeSut(errorMessage)
 
-      const passwordInput = sut.getByTestId('password')
-      fireEvent.input(passwordInput, { target: { value: password } })
-
-      const passwordStatus = sut.getByTestId('password-status')
-      expect(passwordStatus.title).toBe(errorMessage)
-      expect(passwordStatus.textContent).toBe('🔴')
+      populateField(sut, 'password', password)
+      simulateStatusForField(sut, 'password', errorMessage)
     })
 
     it('should show valid email state if Validation succeeds', () => {
       const { sut } = makeSut()
 
-      const emailInput = sut.getByTestId('email')
-      fireEvent.input(emailInput, { target: { value: email } })
-
-      const emailStatus = sut.getByTestId('email-status')
-      expect(emailStatus.title).toBe(successMessage)
-      expect(emailStatus.textContent).toBe('🟢')
+      populateField(sut, 'email', email)
+      simulateStatusForField(sut, 'email')
     })
 
     it('should show valid password state if Validation succeeds', () => {
       const { sut } = makeSut()
 
-      const passwordInput = sut.getByTestId('password')
-      fireEvent.input(passwordInput, { target: { value: password } })
-
-      const passwordStatus = sut.getByTestId('password-status')
-      expect(passwordStatus.title).toBe(successMessage)
-      expect(passwordStatus.textContent).toBe('🟢')
+      populateField(sut, 'password', password)
+      simulateStatusForField(sut, 'password')
     })
   })
 
@@ -123,11 +114,8 @@ describe('Login Page', () => {
     it('should enable submit button if form is valid', () => {
       const { sut } = makeSut()
 
-      const emailInput = sut.getByTestId('email')
-      fireEvent.input(emailInput, { target: { value: email } })
-
-      const passwordInput = sut.getByTestId('password')
-      fireEvent.input(passwordInput, { target: { value: password } })
+      populateField(sut, 'email', email)
+      populateField(sut, 'password', password)
 
       const submitButton = sut.getByTestId('submit') as HTMLButtonElement
       expect(submitButton.disabled).toBe(false)
@@ -138,11 +126,8 @@ describe('Login Page', () => {
     it('should show spinner on submit', () => {
       const { sut } = makeSut()
 
-      const emailInput = sut.getByTestId('email')
-      fireEvent.input(emailInput, { target: { value: email } })
-
-      const passwordInput = sut.getByTestId('password')
-      fireEvent.input(passwordInput, { target: { value: password } })
+      populateField(sut, 'email', email)
+      populateField(sut, 'password', password)
 
       const submitButton = sut.getByTestId('submit') as HTMLButtonElement
       fireEvent.click(submitButton)
@@ -156,15 +141,10 @@ describe('Login Page', () => {
     it('should call Authentication with correct values', async () => {
       const { sut, authenticationStub } = makeSut()
 
-      const emailInput = sut.getByTestId('email')
-      fireEvent.input(emailInput, { target: { value: email } })
+      populateField(sut, 'email', email)
+      populateField(sut, 'password', password)
 
-      const passwordInput = sut.getByTestId('password')
-      fireEvent.input(passwordInput, { target: { value: password } })
-
-      const submitButton = sut.getByTestId('submit') as HTMLButtonElement
-      fireEvent.click(submitButton)
-
+      simulateSubmitEvent(sut)
       expect(authenticationStub.auth).toHaveBeenCalledWith<[AuthenticationParams]>({ email, password })
     })
   })
