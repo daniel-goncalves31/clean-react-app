@@ -11,7 +11,8 @@ interface SutType {
 
 const field = random.word()
 const value = random.words(3)
-const error = new Error(random.words(3))
+const error1 = new Error(random.words(3))
+const error2 = new Error(random.words(3))
 
 const makeSut = (): SutType => {
   const validationStub1 = mock<FieldValidation>({ field })
@@ -29,11 +30,12 @@ const makeSut = (): SutType => {
 }
 
 describe('ValidationComposite', () => {
-  it('should return error if ani Validation fails', async () => {
-    const { sut, validationStub1 } = makeSut()
-    validationStub1.validate.mockReturnValue(error)
+  it('should return error if any Validation fails', async () => {
+    const { sut, validationStub1, validationStub2 } = makeSut()
+    validationStub1.validate.mockReturnValueOnce(error1)
+    validationStub2.validate.mockReturnValueOnce(error2)
 
     const res = sut.validate(field, value)
-    expect(res).toEqual(error.message)
+    expect(res).toEqual(error1.message)
   })
 })
