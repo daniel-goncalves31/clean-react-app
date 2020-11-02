@@ -30,4 +30,15 @@ describe('LocalSaveAccessToken', () => {
     expect(setStorageStub.set).toHaveBeenCalledWith('accessToken', accessToken)
     expect(setStorageStub.set).toHaveBeenCalledTimes(1)
   })
+
+  it('should throws if SetStorage throws', async () => {
+    const { sut, setStorageStub } = makeSut()
+    setStorageStub.set.mockImplementationOnce(() => {
+      throw new Error()
+    })
+
+    const promise = sut.save(accessToken)
+
+    await expect(promise).rejects.toThrow(new Error())
+  })
 })
