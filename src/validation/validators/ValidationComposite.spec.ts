@@ -16,7 +16,9 @@ const error2 = new Error(random.words(3))
 
 const makeSut = (): SutType => {
   const validationStub1 = mock<FieldValidation>({ field })
+  validationStub1.validate.mockReturnValue(null)
   const validationStub2 = mock<FieldValidation>({ field })
+  validationStub2.validate.mockReturnValue(null)
 
   const validatorsStub = [validationStub1, validationStub2]
 
@@ -37,5 +39,12 @@ describe('ValidationComposite', () => {
 
     const res = sut.validate(field, value)
     expect(res).toEqual(error1.message)
+  })
+
+  it('should return null if there is no error', async () => {
+    const { sut } = makeSut()
+
+    const res = sut.validate(field, value)
+    expect(res).toBeNull()
   })
 })
