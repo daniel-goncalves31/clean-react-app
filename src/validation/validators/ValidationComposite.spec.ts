@@ -22,7 +22,7 @@ const makeSut = (): SutType => {
 
   const validatorsStub = [validationStub1, validationStub2]
 
-  const sut = new ValidationComposite(validatorsStub)
+  const sut = ValidationComposite.build(validatorsStub)
 
   return {
     sut,
