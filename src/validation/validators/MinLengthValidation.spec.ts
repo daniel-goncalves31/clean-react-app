@@ -6,11 +6,10 @@ interface SutType {
   sut: MinLengthValidation
 }
 
-const field = random.words(2)
-const minLength = random.number(2)
+const field = random.word()
 
 const makeSut = (): SutType => {
-  const sut = new MinLengthValidation(field, minLength)
+  const sut = new MinLengthValidation(field, 5)
 
   return {
     sut
@@ -22,5 +21,11 @@ describe('MinLengthValidation', () => {
     const { sut } = makeSut()
     const error = sut.validate('123')
     expect(error).toEqual(new InvalidFieldError())
+  })
+
+  it('should return null if value is valid', async () => {
+    const { sut } = makeSut()
+    const error = sut.validate('12345')
+    expect(error).toBeNull()
   })
 })
