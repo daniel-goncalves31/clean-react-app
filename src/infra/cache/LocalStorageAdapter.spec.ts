@@ -18,6 +18,10 @@ const makeSut = (): SutType => {
 }
 
 describe('LocalStorageAdapter', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
   it('should call localStorage with correct values', async () => {
     const { sut } = makeSut()
     await sut.set(key, value)
