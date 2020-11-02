@@ -1,3 +1,3 @@
 export const makeApiUrl = (path: string): string => {
-  return `any_url/${path}`
+  return `${process.env.API_URL}/${path}`
 }
