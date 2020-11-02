@@ -1,4 +1,4 @@
-import { random } from 'faker'
+import { database, random } from 'faker'
 import { RequiredFieldError } from '../errors'
 import { RequiredFieldValidation } from './RequiredFieldValidation'
 
@@ -7,9 +7,10 @@ interface SutType {
 }
 
 const validValue = random.words(4)
+const field = database.column()
 
 const makeSut = (): SutType => {
-  const sut = new RequiredFieldValidation('email')
+  const sut = new RequiredFieldValidation(field)
 
   return {
     sut
