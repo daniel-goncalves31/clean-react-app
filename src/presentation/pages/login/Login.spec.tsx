@@ -1,5 +1,5 @@
 import React from 'react'
-import { fireEvent, render, RenderResult } from '@testing-library/react'
+import { fireEvent, render, RenderResult, waitFor } from '@testing-library/react'
 import Login from './Login'
 import { mock, MockProxy } from 'jest-mock-extended'
 import { Validation } from '@/presentation/protocols/Validation'
@@ -7,19 +7,20 @@ import { internet, random } from 'faker'
 import { AuthenticationParams, AuthenticationUseCase } from '@/domain/usecases/AuthenticationUseCase'
 import { InvalidCredentialsError } from '@/domain/errors'
 import '@testing-library/jest-dom/extend-expect'
-import 'jest-localstorage-mock'
 import { mockAccountModel } from '@/domain/test/mock-account'
 import { Router } from 'react-router-dom'
 import { createMemoryHistory } from 'history'
+import { SaveAccessTokenUseCase } from '@/domain/usecases/SaveAccessTokenUseCase'
 
 type SutTypes = {
   sut: RenderResult
   validationStub: MockProxy<Validation>
   authenticationStub: MockProxy<AuthenticationUseCase>
+  saveAccessTokenStub: MockProxy<SaveAccessTokenUseCase>
 }
 
 const email = internet.email()
-const password = internet.password()
+const password = internet.password(10)
 const errorMessage = random.words(3)
 const successMessage = 'OK'
 const invalidCredentialsError = new InvalidCredentialsError()
@@ -33,16 +34,19 @@ const makeSut = (message: string = ''): SutTypes => {
   const authenticationStub = mock<AuthenticationUseCase>()
   authenticationStub.auth.mockResolvedValue(accountModel)
 
+  const saveAccessTokenStub = mock<SaveAccessTokenUseCase>()
+
   const sut = render(
     <Router history={history}>
-      <Login validation={validationStub} authentication={authenticationStub} />
+      <Login validation={validationStub} authentication={authenticationStub} saveAccessToken={saveAccessTokenStub} />
     </Router>
   )
 
   return {
     sut,
     validationStub,
-    authenticationStub
+    authenticationStub,
+    saveAccessTokenStub
   }
 }
 
@@ -191,13 +195,17 @@ describe('Login Page', () => {
       const errorWrap = sut.getByTestId('error-wrap')
       expect(errorWrap.childElementCount).toBe(1)
     })
+  })
 
-    it('should add accessToken to localStorage and navigates to the main page on success', async () => {
-      const { sut } = makeSut()
+  describe('SaveAccessTokenUseCase', () => {
+    it('should call SaveAccessToken on success', async () => {
+      const { sut, saveAccessTokenStub } = makeSut()
 
       simulateValidSubmitEvent(sut)
 
-      expect(localStorage.setItem).toHaveBeenCalledWith('accessToken', accountModel.accessToken)
+      await waitFor(() => {
+        expect(saveAccessTokenStub.save).toHaveBeenCalledWith<[string]>(accountModel.accessToken)
+      })
       expect(history.length).toBe(1)
       expect(history.location.pathname).toBe('/')
     })
