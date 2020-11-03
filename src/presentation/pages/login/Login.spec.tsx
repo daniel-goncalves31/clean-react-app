@@ -209,6 +209,23 @@ describe('Login Page', () => {
       expect(history.length).toBe(1)
       expect(history.location.pathname).toBe('/')
     })
+
+    it('should present an error if SaveAccessToken fails', async () => {
+      const { sut, saveAccessTokenStub } = makeSut()
+
+      const error = new Error(errorMessage)
+      saveAccessTokenStub.save.mockImplementationOnce(() => {
+        throw error
+      })
+
+      simulateValidSubmitEvent(sut)
+
+      const mainError = await sut.findByTestId('main-error')
+      const errorWrap = sut.getByTestId('error-wrap')
+
+      expect(mainError).toHaveTextContent(error.message)
+      expect(errorWrap.childElementCount).toBe(1)
+    })
   })
 
   describe('Router', () => {
