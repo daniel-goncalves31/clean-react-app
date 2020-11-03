@@ -5,13 +5,15 @@ import FormContext from '@/presentation/contexts/form/FormContext'
 import { Validation } from '@/presentation/protocols/Validation'
 import { AuthenticationUseCase } from '@/domain/usecases/AuthenticationUseCase'
 import { Link, useHistory } from 'react-router-dom'
+import { SaveAccessTokenUseCase } from '@/domain/usecases/SaveAccessTokenUseCase'
 
 interface Props {
   validation: Validation
   authentication: AuthenticationUseCase
+  saveAccessToken: SaveAccessTokenUseCase
 }
 
-const Login: React.FC<Props> = ({ validation, authentication }) => {
+const Login: React.FC<Props> = ({ validation, authentication, saveAccessToken }) => {
   const history = useHistory()
 
   const [state, setState] = useState({
@@ -45,7 +47,7 @@ const Login: React.FC<Props> = ({ validation, authentication }) => {
       })
 
       const account = await authentication.auth({ email, password })
-      localStorage.setItem('accessToken', account.accessToken)
+      await saveAccessToken.save(account.accessToken)
       history.replace('/')
     } catch (error) {
       setState({
