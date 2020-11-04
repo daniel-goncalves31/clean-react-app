@@ -22,6 +22,8 @@ export class RemoteAddAccount implements AddAccountUseCase {
       case HttpStatusCode.NOT_FOUND:
       case HttpStatusCode.SERVER_ERROR:
         throw new UnexpectedError()
+      case HttpStatusCode.OK:
+        return httpResponse.body
       default:
         return null
     }
