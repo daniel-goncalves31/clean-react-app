@@ -23,4 +23,10 @@ describe('CompareFieldsValidation', () => {
     const error = sut.validate(random.word())
     expect(error).toEqual(new InvalidFieldError())
   })
+
+  it('should return null if compare is valid', async () => {
+    const { sut } = makeSut()
+    const error = sut.validate(valueToCompare)
+    expect(error).toBeNull()
+  })
 })
