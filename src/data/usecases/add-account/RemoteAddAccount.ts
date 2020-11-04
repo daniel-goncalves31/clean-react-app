@@ -19,6 +19,7 @@ export class RemoteAddAccount implements AddAccountUseCase {
       case HttpStatusCode.FORBIDDEN:
         throw new EmailInUseError()
       case HttpStatusCode.BAD_REQUEST:
+      case HttpStatusCode.NOT_FOUND:
         throw new UnexpectedError()
       default:
         return null
