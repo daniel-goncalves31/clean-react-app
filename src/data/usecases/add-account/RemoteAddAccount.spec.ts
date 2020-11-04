@@ -1,5 +1,5 @@
 import { HttpPostClient, HttpPostParams, HttpStatusCode } from '@/data/protocols/http'
-import { EmailInUseError } from '@/domain/errors'
+import { EmailInUseError, UnexpectedError } from '@/domain/errors'
 import { AccountModel } from '@/domain/models/AccountModel'
 import { mockAddAccountParams } from '@/domain/test/mock-add-account'
 import { AddAccountParams } from '@/domain/usecases/AddAccountUseCase'
@@ -46,5 +46,16 @@ describe('RemoteAddAccount', () => {
     const promise = sut.add(addAccountParams)
 
     await expect(promise).rejects.toThrow(new EmailInUseError())
+  })
+
+  it('should throw UnexpectedError if HttpPostClient returns 400', async () => {
+    const { sut, httpPostClientStub } = makeSut()
+    httpPostClientStub.post.mockReturnValue(Promise.resolve({
+      statusCode: HttpStatusCode.BAD_REQUEST
+    }))
+
+    const promise = sut.add(addAccountParams)
+
+    await expect(promise).rejects.toThrow(new UnexpectedError())
   })
 })
