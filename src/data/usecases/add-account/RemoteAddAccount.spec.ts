@@ -1,4 +1,5 @@
-import { HttpPostClient, HttpPostParams } from '@/data/protocols/http'
+import { HttpPostClient, HttpPostParams, HttpStatusCode } from '@/data/protocols/http'
+import { EmailInUseError } from '@/domain/errors'
 import { AccountModel } from '@/domain/models/AccountModel'
 import { mockAddAccountParams } from '@/domain/test/mock-add-account'
 import { AddAccountParams } from '@/domain/usecases/AddAccountUseCase'
@@ -16,6 +17,7 @@ const addAccountParams = mockAddAccountParams()
 
 const makeSut = (): SutType => {
   const httpPostClientStub = mock<HttpPostClient<AddAccountParams, AccountModel>>()
+  httpPostClientStub.post.mockResolvedValue({ statusCode: 1 })
 
   const sut = new RemoteAddAccount(url, httpPostClientStub)
 
@@ -33,5 +35,16 @@ describe('RemoteAddAccount', () => {
 
     expect(httpPostClientStub.post).toHaveBeenCalledWith<[HttpPostParams<AddAccountParams>]>({ url, body: addAccountParams })
     expect(httpPostClientStub.post).toHaveBeenCalledTimes(1)
+  })
+
+  it('should throw EmailInUseError if HttpPostClient returns 403', async () => {
+    const { sut, httpPostClientStub } = makeSut()
+    httpPostClientStub.post.mockReturnValue(Promise.resolve({
+      statusCode: HttpStatusCode.FORBIDDEN
+    }))
+
+    const promise = sut.add(addAccountParams)
+
+    await expect(promise).rejects.toThrow(new EmailInUseError())
   })
 })
