@@ -11,6 +11,7 @@ import { mockAccountModel } from '@/domain/test/mock-account'
 import { Router } from 'react-router-dom'
 import { createMemoryHistory } from 'history'
 import { SaveAccessTokenUseCase } from '@/domain/usecases/SaveAccessTokenUseCase'
+import * as TestFormHelper from '@/presentation/test/FormHelper'
 
 type SutTypes = {
   sut: RenderResult
@@ -22,7 +23,6 @@ type SutTypes = {
 const email = internet.email()
 const password = internet.password(10)
 const errorMessage = random.words(3)
-const successMessage = 'OK'
 const invalidCredentialsError = new InvalidCredentialsError()
 const accountModel = mockAccountModel()
 const history = createMemoryHistory({ initialEntries: ['/login'] })
@@ -62,26 +62,15 @@ const simulateValidSubmitEvent = (sut: RenderResult): void => {
   const submitButton = sut.getByTestId('submit') as HTMLButtonElement
   fireEvent.click(submitButton)
 }
-
-const simulateStatusForField = (sut: RenderResult, fieldName: string, validationError?: string): void => {
-  const inputStatus = sut.getByTestId(`${fieldName}-status`)
-  expect(inputStatus.title).toBe(validationError || successMessage)
-  expect(inputStatus.textContent).toBe(validationError ? '🔴' : '🟢')
-}
-
 describe('Login Page', () => {
   describe('Initial State', () => {
     it('should start with initial state', () => {
       const { sut } = makeSut(errorMessage)
 
-      const errorWrap = sut.getByTestId('error-wrap')
-      expect(errorWrap.childElementCount).toBe(0)
-
-      const submitButton = sut.getByTestId('submit')
-      expect(submitButton).toBeDisabled()
-
-      simulateStatusForField(sut, 'email', errorMessage)
-      simulateStatusForField(sut, 'password', errorMessage)
+      TestFormHelper.testChildCount(sut, 'error-wrap', 0)
+      TestFormHelper.testButtonIsDisabled(sut, 'submit', true)
+      TestFormHelper.testStatusForField(sut, 'email', errorMessage)
+      TestFormHelper.testStatusForField(sut, 'password', errorMessage)
     })
   })
 
@@ -104,28 +93,28 @@ describe('Login Page', () => {
       const { sut } = makeSut(errorMessage)
 
       populateField(sut, 'email', email)
-      simulateStatusForField(sut, 'email', errorMessage)
+      TestFormHelper.testStatusForField(sut, 'email', errorMessage)
     })
 
     it('should show password error if Validation fails', () => {
       const { sut } = makeSut(errorMessage)
 
       populateField(sut, 'password', password)
-      simulateStatusForField(sut, 'password', errorMessage)
+      TestFormHelper.testStatusForField(sut, 'password', errorMessage)
     })
 
     it('should show valid email state if Validation succeeds', () => {
       const { sut } = makeSut()
 
       populateField(sut, 'email', email)
-      simulateStatusForField(sut, 'email')
+      TestFormHelper.testStatusForField(sut, 'email')
     })
 
     it('should show valid password state if Validation succeeds', () => {
       const { sut } = makeSut()
 
       populateField(sut, 'password', password)
-      simulateStatusForField(sut, 'password')
+      TestFormHelper.testStatusForField(sut, 'password')
     })
   })
 
@@ -136,8 +125,7 @@ describe('Login Page', () => {
       populateField(sut, 'email', email)
       populateField(sut, 'password', password)
 
-      const submitButton = sut.getByTestId('submit') as HTMLButtonElement
-      expect(submitButton).not.toBeDisabled()
+      TestFormHelper.testButtonIsDisabled(sut, 'submit', false)
     })
   })
 
@@ -192,8 +180,7 @@ describe('Login Page', () => {
       const mainError = await sut.findByTestId('main-error')
       expect(mainError).toHaveTextContent(invalidCredentialsError.message)
 
-      const errorWrap = sut.getByTestId('error-wrap')
-      expect(errorWrap.childElementCount).toBe(1)
+      TestFormHelper.testChildCount(sut, 'error-wrap', 1)
     })
   })
 
@@ -221,10 +208,9 @@ describe('Login Page', () => {
       simulateValidSubmitEvent(sut)
 
       const mainError = await sut.findByTestId('main-error')
-      const errorWrap = sut.getByTestId('error-wrap')
-
       expect(mainError).toHaveTextContent(error.message)
-      expect(errorWrap.childElementCount).toBe(1)
+
+      TestFormHelper.testChildCount(sut, 'error-wrap', 1)
     })
   })
 
