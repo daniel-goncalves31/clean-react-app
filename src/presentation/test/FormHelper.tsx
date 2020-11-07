@@ -1,4 +1,4 @@
-import { RenderResult } from '@testing-library/react'
+import { fireEvent, RenderResult } from '@testing-library/react'
 
 export const testChildCount = (sut: RenderResult, fieldName: string, count: number): void => {
   const el = sut.getByTestId(fieldName)
@@ -14,4 +14,9 @@ export const testStatusForField = (sut: RenderResult, fieldName: string, validat
   const fieldStatus = sut.getByTestId(`${fieldName}-status`)
   expect(fieldStatus.title).toBe(validationError || 'OK')
   expect(fieldStatus.textContent).toBe(validationError ? '🔴' : '🟢')
+}
+
+export const populateField = (sut: RenderResult, filedName: string, value: string): void => {
+  const input = sut.getByTestId(filedName) as HTMLInputElement
+  fireEvent.input(input, { target: { value } })
 }

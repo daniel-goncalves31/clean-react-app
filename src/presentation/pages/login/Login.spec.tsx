@@ -50,14 +50,9 @@ const makeSut = (message: string = ''): SutTypes => {
   }
 }
 
-const populateField = (sut: RenderResult, testId: string, value: string): void => {
-  const input = sut.getByTestId(testId)
-  fireEvent.input(input, { target: { value } })
-}
-
 const simulateValidSubmitEvent = (sut: RenderResult): void => {
-  populateField(sut, 'email', email)
-  populateField(sut, 'password', password)
+  TestFormHelper.populateField(sut, 'email', email)
+  TestFormHelper.populateField(sut, 'password', password)
 
   const submitButton = sut.getByTestId('submit') as HTMLButtonElement
   fireEvent.click(submitButton)
@@ -78,42 +73,42 @@ describe('Login Page', () => {
     it('should call Validation with correct email', () => {
       const { sut, validationStub } = makeSut()
 
-      populateField(sut, 'email', email)
+      TestFormHelper.populateField(sut, 'email', email)
       expect(validationStub.validate).toHaveBeenCalledWith('email', email)
     })
 
     it('should call Validation with correct password', () => {
       const { sut, validationStub } = makeSut()
 
-      populateField(sut, 'password', password)
+      TestFormHelper.populateField(sut, 'password', password)
       expect(validationStub.validate).toHaveBeenCalledWith('password', password)
     })
 
     it('should show email error if Validation fails', () => {
       const { sut } = makeSut(errorMessage)
 
-      populateField(sut, 'email', email)
+      TestFormHelper.populateField(sut, 'email', email)
       TestFormHelper.testStatusForField(sut, 'email', errorMessage)
     })
 
     it('should show password error if Validation fails', () => {
       const { sut } = makeSut(errorMessage)
 
-      populateField(sut, 'password', password)
+      TestFormHelper.populateField(sut, 'password', password)
       TestFormHelper.testStatusForField(sut, 'password', errorMessage)
     })
 
     it('should show valid email state if Validation succeeds', () => {
       const { sut } = makeSut()
 
-      populateField(sut, 'email', email)
+      TestFormHelper.populateField(sut, 'email', email)
       TestFormHelper.testStatusForField(sut, 'email')
     })
 
     it('should show valid password state if Validation succeeds', () => {
       const { sut } = makeSut()
 
-      populateField(sut, 'password', password)
+      TestFormHelper.populateField(sut, 'password', password)
       TestFormHelper.testStatusForField(sut, 'password')
     })
   })
@@ -122,8 +117,8 @@ describe('Login Page', () => {
     it('should enable submit button if form is valid', () => {
       const { sut } = makeSut()
 
-      populateField(sut, 'email', email)
-      populateField(sut, 'password', password)
+      TestFormHelper.populateField(sut, 'email', email)
+      TestFormHelper.populateField(sut, 'password', password)
 
       TestFormHelper.testButtonIsDisabled(sut, 'submit', false)
     })
@@ -133,8 +128,8 @@ describe('Login Page', () => {
     it('should show spinner on submit', () => {
       const { sut } = makeSut()
 
-      populateField(sut, 'email', email)
-      populateField(sut, 'password', password)
+      TestFormHelper.populateField(sut, 'email', email)
+      TestFormHelper.populateField(sut, 'password', password)
 
       const submitButton = sut.getByTestId('submit') as HTMLButtonElement
       fireEvent.click(submitButton)
@@ -165,7 +160,7 @@ describe('Login Page', () => {
     it('should not call Authentication if form is invalid', async () => {
       const { sut, authenticationStub } = makeSut(errorMessage)
 
-      populateField(sut, 'email', '')
+      TestFormHelper.populateField(sut, 'email', '')
 
       fireEvent.submit(sut.getByTestId('form'))
       expect(authenticationStub.auth).toHaveBeenCalledTimes(0)

@@ -1,6 +1,6 @@
 import React from 'react'
 import SignUp from './SignUp'
-import { RenderResult, render, fireEvent } from '@testing-library/react'
+import { RenderResult, render } from '@testing-library/react'
 import * as TestFormHelper from '@/presentation/test/FormHelper'
 import { mock, MockProxy } from 'jest-mock-extended'
 import { Validation } from '@/presentation/protocols/Validation'
@@ -27,11 +27,6 @@ const makeSut = (): SutTypes => {
   }
 }
 
-const populateField = (sut: RenderResult, filedName: string, value: string): void => {
-  const input = sut.getByTestId(filedName) as HTMLInputElement
-  fireEvent.input(input, { target: { value } })
-}
-
 describe('SignUp Page', () => {
   it('should start with initial state', () => {
     const { sut } = makeSut()
@@ -46,7 +41,7 @@ describe('SignUp Page', () => {
   describe('Validation', () => {
     it('should show name error if Validation fails', async () => {
       const { sut } = makeSut()
-      populateField(sut, 'name', value)
+      TestFormHelper.populateField(sut, 'name', value)
       TestFormHelper.testStatusForField(sut, 'name', validationError)
     })
   })
