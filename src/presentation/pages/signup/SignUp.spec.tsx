@@ -50,5 +50,11 @@ describe('SignUp Page', () => {
       TestFormHelper.populateField(sut, 'email', value)
       TestFormHelper.testStatusForField(sut, 'email', validationError)
     })
+
+    it('should show password error if Validation fails', async () => {
+      const { sut } = makeSut()
+      TestFormHelper.populateField(sut, 'password', value)
+      TestFormHelper.testStatusForField(sut, 'password', validationError)
+    })
   })
 })
