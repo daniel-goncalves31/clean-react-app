@@ -1,10 +1,10 @@
 import React from 'react'
 import SignUp from './SignUp'
-import { RenderResult, render } from '@testing-library/react'
+import { RenderResult, render, fireEvent, waitFor } from '@testing-library/react'
 import * as TestFormHelper from '@/presentation/test/FormHelper'
 import { mock, MockProxy } from 'jest-mock-extended'
 import { Validation } from '@/presentation/protocols/Validation'
-import { random } from 'faker'
+import { internet, random, name as fakeName } from 'faker'
 
 type SutTypes = {
   sut: RenderResult
@@ -25,6 +25,17 @@ const makeSut = (validationError: string = ''): SutTypes => {
     sut,
     validationStub
   }
+}
+
+const simulateValidSubmit = async (sut: RenderResult, name = fakeName.findName(), email = internet.email(), password = internet.password()): Promise<void> => {
+  TestFormHelper.populateField(sut, 'name', name)
+  TestFormHelper.populateField(sut, 'email', email)
+  TestFormHelper.populateField(sut, 'password', password)
+  TestFormHelper.populateField(sut, 'passwordConfirmation', password)
+
+  const form = sut.getByTestId('form')
+  fireEvent.submit(form)
+  await waitFor(() => form)
 }
 
 describe('SignUp Page', () => {
@@ -94,6 +105,15 @@ describe('SignUp Page', () => {
       TestFormHelper.populateField(sut, 'password', value)
       TestFormHelper.populateField(sut, 'passwordConfirmation', value)
       TestFormHelper.testButtonIsDisabled(sut, 'submit', false)
+    })
+  })
+
+  describe('Spinner', () => {
+    it('should show spinner on submit', async () => {
+      const { sut } = makeSut()
+      await simulateValidSubmit(sut)
+
+      await TestFormHelper.testIfElementExists(sut, 'spinner')
     })
   })
 })

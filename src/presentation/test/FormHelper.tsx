@@ -1,4 +1,5 @@
 import { fireEvent, RenderResult } from '@testing-library/react'
+import '@testing-library/jest-dom/extend-expect'
 
 export const testChildCount = (sut: RenderResult, fieldName: string, count: number): void => {
   const el = sut.getByTestId(fieldName)
@@ -19,4 +20,9 @@ export const testStatusForField = (sut: RenderResult, fieldName: string, validat
 export const populateField = (sut: RenderResult, filedName: string, value: string): void => {
   const input = sut.getByTestId(filedName) as HTMLInputElement
   fireEvent.input(input, { target: { value } })
+}
+
+export const testIfElementExists = async (sut: RenderResult, testId: string): Promise<void> => {
+  const element = await sut.findByTestId(testId)
+  expect(element).toBeInTheDocument()
 }
