@@ -40,7 +40,7 @@ const SignUp: React.FC<Props> = ({ validation, addAccountUseCase }) => {
     event.preventDefault()
     setState({ ...state, isLoading: true })
 
-    if (isLoading) return
+    if (isLoading || nameError || emailError || passwordError || passwordConfirmationError) return
 
     await addAccountUseCase.add({ email, name, passwordConfirmation, password })
   }
