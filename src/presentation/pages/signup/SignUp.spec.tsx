@@ -132,5 +132,11 @@ describe('SignUp Page', () => {
 
       expect(addAccountUseCaseStub.add).toHaveBeenCalledWith<[AddAccountParams]>({ name, email, password, passwordConfirmation: password })
     })
+
+    it('should prevent AddAccountUseCase to be called multiple times', async () => {
+      const { sut, addAccountUseCaseStub } = makeSut()
+      await simulateValidSubmit(sut, name, email, password)
+      expect(addAccountUseCaseStub.add).toHaveBeenCalledTimes(1)
+    })
   })
 })
