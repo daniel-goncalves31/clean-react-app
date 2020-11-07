@@ -5,25 +5,33 @@ import * as TestFormHelper from '@/presentation/test/FormHelper'
 import { mock, MockProxy } from 'jest-mock-extended'
 import { Validation } from '@/presentation/protocols/Validation'
 import { internet, random, name as fakeName } from 'faker'
+import { AddAccountParams, AddAccountUseCase } from '@/domain/usecases/AddAccountUseCase'
 
 type SutTypes = {
   sut: RenderResult
   validationStub: MockProxy<Validation>
+  addAccountUseCaseStub: MockProxy<AddAccountUseCase>
 }
 
 const validationError = 'Required Field'
 const value = random.word()
+const name = random.word()
+const email = random.word()
+const password = random.word()
 
 const makeSut = (validationError: string = ''): SutTypes => {
   const validationStub = mock<Validation>()
   validationStub.validate.mockReturnValue(validationError)
 
+  const addAccountUseCaseStub = mock<AddAccountUseCase>()
+
   const sut = render(
-    <SignUp validation={validationStub} />
+    <SignUp validation={validationStub} addAccountUseCase={addAccountUseCaseStub} />
   )
   return {
     sut,
-    validationStub
+    validationStub,
+    addAccountUseCaseStub
   }
 }
 
@@ -114,6 +122,15 @@ describe('SignUp Page', () => {
       await simulateValidSubmit(sut)
 
       await TestFormHelper.testIfElementExists(sut, 'spinner')
+    })
+  })
+
+  describe('AddAccount UseCase', () => {
+    it('should call AddAccountUseCase with correct values', async () => {
+      const { sut, addAccountUseCaseStub } = makeSut()
+      await simulateValidSubmit(sut, name, email, password)
+
+      expect(addAccountUseCaseStub.add).toHaveBeenCalledWith<[AddAccountParams]>({ name, email, password, passwordConfirmation: password })
     })
   })
 })
