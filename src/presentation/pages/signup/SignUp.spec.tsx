@@ -63,28 +63,37 @@ describe('SignUp Page', () => {
       TestFormHelper.testStatusForField(sut, 'passwordConfirmation', validationError)
     })
 
-    it('Should show valid name state if Validation succeeds', () => {
+    it('should show valid name state if Validation succeeds', () => {
       const { sut } = makeSut()
       TestFormHelper.populateField(sut, 'name', value)
       TestFormHelper.testStatusForField(sut, 'name')
     })
 
-    it('Should show valid email state if Validation succeeds', () => {
+    it('should show valid email state if Validation succeeds', () => {
       const { sut } = makeSut()
       TestFormHelper.populateField(sut, 'email', value)
       TestFormHelper.testStatusForField(sut, 'email')
     })
 
-    it('Should show valid password state if Validation succeeds', () => {
+    it('should show valid password state if Validation succeeds', () => {
       const { sut } = makeSut()
       TestFormHelper.populateField(sut, 'password', value)
       TestFormHelper.testStatusForField(sut, 'password')
     })
 
-    it('Should show valid passwordConfirmation state if Validation succeeds', () => {
+    it('should show valid passwordConfirmation state if Validation succeeds', () => {
       const { sut } = makeSut()
       TestFormHelper.populateField(sut, 'passwordConfirmation', value)
       TestFormHelper.testStatusForField(sut, 'passwordConfirmation')
+    })
+
+    it('should enable submit button if form is valid', () => {
+      const { sut } = makeSut()
+      TestFormHelper.populateField(sut, 'name', value)
+      TestFormHelper.populateField(sut, 'email', value)
+      TestFormHelper.populateField(sut, 'password', value)
+      TestFormHelper.populateField(sut, 'passwordConfirmation', value)
+      TestFormHelper.testButtonIsDisabled(sut, 'submit', false)
     })
   })
 })
