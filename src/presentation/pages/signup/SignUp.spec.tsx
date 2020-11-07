@@ -44,5 +44,11 @@ describe('SignUp Page', () => {
       TestFormHelper.populateField(sut, 'name', value)
       TestFormHelper.testStatusForField(sut, 'name', validationError)
     })
+
+    it('should show email error if Validation fails', async () => {
+      const { sut } = makeSut()
+      TestFormHelper.populateField(sut, 'email', value)
+      TestFormHelper.testStatusForField(sut, 'email', validationError)
+    })
   })
 })
