@@ -15,9 +15,9 @@ type SutTypes = {
 
 const validationError = 'Required Field'
 const value = random.word()
-const name = random.word()
-const email = random.word()
-const password = random.word()
+const name = fakeName.findName()
+const email = internet.email()
+const password = internet.password()
 
 const makeSut = (validationError: string = ''): SutTypes => {
   const validationStub = mock<Validation>()
@@ -35,7 +35,7 @@ const makeSut = (validationError: string = ''): SutTypes => {
   }
 }
 
-const simulateValidSubmit = async (sut: RenderResult, name = fakeName.findName(), email = internet.email(), password = internet.password()): Promise<void> => {
+const simulateSubmit = async (sut: RenderResult, name = '', email = '', password = ''): Promise<void> => {
   TestFormHelper.populateField(sut, 'name', name)
   TestFormHelper.populateField(sut, 'email', email)
   TestFormHelper.populateField(sut, 'password', password)
@@ -119,7 +119,7 @@ describe('SignUp Page', () => {
   describe('Spinner', () => {
     it('should show spinner on submit', async () => {
       const { sut } = makeSut()
-      await simulateValidSubmit(sut)
+      await simulateSubmit(sut)
 
       await TestFormHelper.testIfElementExists(sut, 'spinner')
     })
@@ -128,15 +128,21 @@ describe('SignUp Page', () => {
   describe('AddAccount UseCase', () => {
     it('should call AddAccountUseCase with correct values', async () => {
       const { sut, addAccountUseCaseStub } = makeSut()
-      await simulateValidSubmit(sut, name, email, password)
+      await simulateSubmit(sut, name, email, password)
 
       expect(addAccountUseCaseStub.add).toHaveBeenCalledWith<[AddAccountParams]>({ name, email, password, passwordConfirmation: password })
     })
 
     it('should prevent AddAccountUseCase to be called multiple times', async () => {
       const { sut, addAccountUseCaseStub } = makeSut()
-      await simulateValidSubmit(sut, name, email, password)
+      await simulateSubmit(sut, name, email, password)
       expect(addAccountUseCaseStub.add).toHaveBeenCalledTimes(1)
+    })
+
+    it('should not call AddAccountUseCase if form is invalid', async () => {
+      const { sut, addAccountUseCaseStub } = makeSut(validationError)
+      await simulateSubmit(sut)
+      expect(addAccountUseCaseStub.add).toHaveBeenCalledTimes(0)
     })
   })
 })
