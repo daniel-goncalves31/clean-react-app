@@ -13,18 +13,22 @@ const SignUp: React.FC<Props> = ({ validation }) => {
     isLoading: false,
     name: '',
     nameError: '',
-    emailError: 'Required Field',
+    email: '',
+    emailError: '',
     passwordError: 'Required Field',
     passwordConfirmationError: 'Required Field',
     mainError: ''
   })
 
+  const { name, email } = state
+
   useEffect(() => {
     setState({
       ...state,
-      nameError: validation.validate('name', state.name)
+      nameError: validation.validate('name', name),
+      emailError: validation.validate('email', email)
     })
-  }, [state.name])
+  }, [name, email])
 
   return (
     <div className={Styles.signup}>
