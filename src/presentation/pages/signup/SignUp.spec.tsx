@@ -6,6 +6,7 @@ import { mock, MockProxy } from 'jest-mock-extended'
 import { Validation } from '@/presentation/protocols/Validation'
 import { internet, random, name as fakeName } from 'faker'
 import { AddAccountParams, AddAccountUseCase } from '@/domain/usecases/AddAccountUseCase'
+import '@testing-library/jest-dom/extend-expect'
 
 type SutTypes = {
   sut: RenderResult
@@ -18,6 +19,7 @@ const value = random.word()
 const name = fakeName.findName()
 const email = internet.email()
 const password = internet.password()
+const addAccountError = new Error(random.words(3))
 
 const makeSut = (validationError: string = ''): SutTypes => {
   const validationStub = mock<Validation>()
@@ -143,6 +145,20 @@ describe('SignUp Page', () => {
       const { sut, addAccountUseCaseStub } = makeSut(validationError)
       await simulateSubmit(sut)
       expect(addAccountUseCaseStub.add).toHaveBeenCalledTimes(0)
+    })
+
+    it('should hide spinner and present error if AddAccount fails', async () => {
+      const { sut, addAccountUseCaseStub } = makeSut()
+      addAccountUseCaseStub.add.mockImplementationOnce(() => {
+        throw addAccountError
+      })
+
+      await simulateSubmit(sut, name, email, password)
+
+      const errorWrap = await sut.findByTestId('error-wrap')
+      expect(errorWrap).toHaveTextContent(addAccountError.message)
+
+      TestFormHelper.testChildCount(sut, 'error-wrap', 1)
     })
   })
 })
