@@ -24,7 +24,7 @@ const SignUp: React.FC<Props> = ({ validation, addAccountUseCase }) => {
     mainError: ''
   })
 
-  const { name, email, password, passwordConfirmation, nameError, emailError, passwordError, passwordConfirmationError } = state
+  const { name, email, password, passwordConfirmation, nameError, emailError, passwordError, passwordConfirmationError, isLoading } = state
 
   useEffect(() => {
     setState({
@@ -39,6 +39,8 @@ const SignUp: React.FC<Props> = ({ validation, addAccountUseCase }) => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault()
     setState({ ...state, isLoading: true })
+
+    if (isLoading) return
 
     await addAccountUseCase.add({ email, name, passwordConfirmation, password })
   }
